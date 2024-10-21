@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Game</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #00A, #008);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        #gameArea {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            background: #222;
+            overflow: hidden;
+            border: 4px solid #FFF;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .car {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 60px;
+            background: url('https://via.placeholder.com/40x60/FF0000/FFFFFF?text=Car') no-repeat center;
+            background-size: cover;
+            transition: left 0.1s ease;
+        }
+
+        .obstacle {
+            position: absolute;
+            width: 40px;
+            height: 60px;
+            background: url('https://via.placeholder.com/40x60/00FF00/FFFFFF?text=Obstacle') no-repeat center;
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameArea">
+        <div class="car" id="playerCar"></div>
+    </div>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const playerCar = document.getElementById('playerCar');
+        let playerCarPosition = 180;
+        let gameSpeed = 5; // Increased game speed for more challenge
+        let obstacles = [];
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft' && playerCarPosition > 0) {
+                playerCarPosition -= 10;
+            } else if (event.key === 'ArrowRight' && playerCarPosition < 360) {
+                playerCarPosition += 10;
+            }
+            playerCar.style.left = playerCarPosition + 'px';
+        });
+
+        function createObstacle() {
+            const obstacle = document.createElement('div');
+            obstacle.classList.add('obstacle');
+            obstacle.style.left = Math.floor(Math.random() * 360) + 'px';
+            obstacle.style.top = '-60px';
+            gameArea.appendChild(obstacle);
+            obstacles.push(obstacle);
+        }
+
+        function moveObstacles() {
+            obstacles.forEach((obstacle, index) => {
+                let obstacleTop = parseInt(obstacle.style.top);
+                if (obstacleTop > 600) {
+                    obstacle.remove();
+                    obstacles.splice(index, 1);
+                } else {
+                    obstacle.style.top = (obstacleTop + gameSpeed) + 'px';
+
+                    // Check collision
+                    if (
+                        obstacleTop > 520 &&
+                        parseInt(obstacle.style.left) < playerCarPosition + 40 &&
+                        parseInt(obstacle.style.left) + 40 > playerCarPosition
+                    ) {
+                        alert('Game Over! Better luck next time!');
+                        window.location.reload();
+                    }
+                }
+            });
+        }
+
+        function gameLoop() {
+            moveObstacles();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Create new obstacles more frequently for added difficulty
+        setInterval(createObstacle, 1500); // Create obstacles every 1.5 seconds
+        gameLoop();
+    </script>
+</body>
+</html>

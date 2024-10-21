@@ -26,6 +26,20 @@
             font-size: 50px;
             color: blue;
         }
+        .start-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 20px;
+            color: white;
+            background-color: blue;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .start-button:hover {
+            background-color: darkblue;
+        }
     </style>
     <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
 </head>
@@ -33,6 +47,7 @@
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <div class="game-info">Use Arrow Keys to control the car. Speed: 10 km/hr</div>
     <div id="carIcon" class="fas fa-space-shuttle"></div>
+    <button id="startButton" class="start-button">Start Game</button>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -54,7 +69,7 @@
 
         // Load bush image
         let bushImage = new Image();
-        bushImage.src = 'path/to/your/bush-image.png'; // Replace with the path to your bush image
+        bushImage.src = '"C:\Users\jovie\Downloads\bush.png"'; // Replace with the path to your bush image
 
         // Function to draw obstacles
         function drawObstacle(obstacle) {
@@ -64,7 +79,7 @@
         function createObstacle() {
             const obstacleWidth = Math.random() * (canvas.width / 2 - 50) + 50;
             const xPosition = Math.random() * (canvas.width - obstacleWidth);
-            obstacles.push({ x: xPosition, y: -100, width: obstacleWidth, height: 20 });
+            obstacles.push({ x: xPosition, y: -20, width: obstacleWidth, height: 20 }); // Start slightly off-screen
         }
 
         function movePlayer() {
@@ -87,6 +102,7 @@
                 }
             }
 
+            // Create initial obstacles
             if (obstacles.length < 5) {
                 createObstacle();
             }
@@ -106,9 +122,11 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Draw the road (simple background pattern)
             ctx.fillStyle = '#555';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+            // Draw lane markings
             ctx.strokeStyle = '#FFF';
             ctx.lineWidth = 4;
             ctx.setLineDash([20, 20]);
@@ -121,6 +139,7 @@
             obstacles.forEach(drawObstacle);
             updateObstacles();
 
+            // Check for collisions
             for (let obstacle of obstacles) {
                 if (detectCollision(playerCar, obstacle)) {
                     isGameOver = true;
@@ -154,9 +173,18 @@
             keys[e.key] = false;
         });
 
-        // Start the game when the image is loaded
+        // Start the game when the button is clicked
+        document.getElementById('startButton').addEventListener('click', function() {
+            this.style.display = 'none'; // Hide the button
+            updateGame(); // Start the game
+            for (let i = 0; i < 5; i++) {
+                createObstacle(); // Create a few initial obstacles
+            }
+        });
+
+        // Load bush image
         bushImage.onload = function() {
-            updateGame();
+            // The game will start after the button is clicked
         };
     </script>
 </body>

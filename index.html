@@ -58,6 +58,7 @@
         let playerCarPosition = 180;
         let gameSpeed = 5; // Increased game speed for more challenge
         let obstacles = [];
+        let gameStarted = false;
 
         document.addEventListener('keydown', (event) => {
             if (event.key === 'ArrowLeft' && playerCarPosition > 0) {
@@ -86,8 +87,8 @@
                 } else {
                     obstacle.style.top = (obstacleTop + gameSpeed) + 'px';
 
-                    // Check collision
-                    if (
+                    // Check collision only if the game has started
+                    if (gameStarted && 
                         obstacleTop > 520 &&
                         parseInt(obstacle.style.left) < playerCarPosition + 40 &&
                         parseInt(obstacle.style.left) + 40 > playerCarPosition
@@ -104,9 +105,12 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Create new obstacles more frequently for added difficulty
-        setInterval(createObstacle, 1500); // Create obstacles every 1.5 seconds
-        gameLoop();
+        // Start the game after a short delay (e.g., 2 seconds)
+        setTimeout(() => {
+            gameStarted = true;
+            setInterval(createObstacle, 1500); // Create obstacles every 1.5 seconds
+            gameLoop();
+        }, 2000); // Delay before the game starts
     </script>
 </body>
 </html>

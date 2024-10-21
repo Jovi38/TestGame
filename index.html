@@ -51,24 +51,24 @@
         const bushImage = new Image();
         bushImage.src = 'https://via.placeholder.com/60x20/228B22/FFFFFF?text=Bush';
 
-        // Function to draw the player car
+        // Draw the player car
         function drawCar(car) {
             ctx.drawImage(carImage, car.x, car.y, car.width, car.height);
         }
 
-        // Function to draw obstacles
+        // Draw obstacles
         function drawObstacle(obstacle) {
             ctx.drawImage(bushImage, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
         }
 
-        // Function to create obstacles
+        // Create new obstacles
         function createObstacle() {
             const obstacleWidth = Math.random() * (canvas.width / 2 - 50) + 50;
             const xPosition = Math.random() * (canvas.width - obstacleWidth);
             obstacles.push({ x: xPosition, y: -100, width: obstacleWidth, height: 20 });
         }
 
-        // Function to handle player movement
+        // Handle player movement
         function movePlayer() {
             if (keys['ArrowLeft'] && playerCar.x > 0) {
                 playerCar.x -= playerCar.speed;
@@ -84,7 +84,7 @@
             }
         }
 
-        // Function to update obstacle positions and create new ones
+        // Update obstacles
         function updateObstacles() {
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 obstacles[i].y += gameSpeed;
@@ -94,12 +94,13 @@
                 }
             }
 
+            // Maintain a few obstacles on the screen
             if (obstacles.length < 5) {
                 createObstacle();
             }
         }
 
-        // Function to detect collision
+        // Detect collision
         function detectCollision(car, obstacle) {
             return (
                 car.x < obstacle.x + obstacle.width &&
@@ -109,7 +110,7 @@
             );
         }
 
-        // Function to update the game state
+        // Update the game state
         function updateGame() {
             if (isGameOver) return;
 
@@ -151,13 +152,14 @@
             requestAnimationFrame(updateGame);
         }
 
-        // Function to reset the game state
+        // Reset the game state
         function resetGame() {
             playerCar.x = canvas.width / 2 - 25;
             playerCar.y = canvas.height - 120;
             obstacles = [];
             gameScore = 0;
             isGameOver = false;
+            createObstacle(); // Start with an initial obstacle
         }
 
         // Keyboard controls
@@ -169,8 +171,13 @@
             keys[e.key] = false;
         });
 
-        // Start the game
-        updateGame();
+        // Load images before starting the game
+        carImage.onload = () => {
+            bushImage.onload = () => {
+                createObstacle(); // Start with an initial obstacle
+                updateGame();
+            };
+        };
     </script>
 </body>
 </html>

@@ -40,25 +40,36 @@
         .start-button:hover {
             background-color: darkblue;
         }
+        .countdown {
+            font-size: 50px;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
     <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
 </head>
 <body>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <div class="game-info">Use Arrow Keys to control the car. Speed: 10 km/hr</div>
+    <div class="game-info">Use Arrow Keys to control the car. Speed: <span id="speedDisplay">10</span> km/hr</div>
     <div id="carIcon" class="fas fa-space-shuttle"></div>
     <button id="startButton" class="start-button">Start Game</button>
+    <div id="countdown" class="countdown" style="display: none;"></div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const carIcon = document.getElementById('carIcon');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const countdownDisplay = document.getElementById('countdown');
 
         let playerCar = {
             x: canvas.width / 2 - 25,
             y: canvas.height - 120,
             width: 50,
-            height: 50,
+            height: 100, // Adjust height for the car image
             speed: 5
         };
 
@@ -67,11 +78,12 @@
         let gameScore = 0;
         let isGameOver = false;
 
-        // Load bush image
-        let bushImage = new Image();
-        bushImage.src = '"C:\Users\jovie\Downloads\bush.png"'; // Replace with the path to your bush image
+        // Load images
+        const carImage = new Image();
+        const bushImage = new Image();
+        carImage.src = 'file:///C:/Users/jovie/Downloads/car.jpg'; // Update to the correct path for your car image
+        bushImage.src = 'file:///C:/Users/jovie/Downloads/bush.png'; // Update to the correct path for your bush image
 
-        // Function to draw obstacles
         function drawObstacle(obstacle) {
             ctx.drawImage(bushImage, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
         }
@@ -79,7 +91,7 @@
         function createObstacle() {
             const obstacleWidth = Math.random() * (canvas.width / 2 - 50) + 50;
             const xPosition = Math.random() * (canvas.width - obstacleWidth);
-            obstacles.push({ x: xPosition, y: -20, width: obstacleWidth, height: 20 }); // Start slightly off-screen
+            obstacles.push({ x: xPosition, y: -20, width: obstacleWidth, height: 20 });
         }
 
         function movePlayer() {
@@ -102,7 +114,6 @@
                 }
             }
 
-            // Create initial obstacles
             if (obstacles.length < 5) {
                 createObstacle();
             }
@@ -121,13 +132,11 @@
             if (isGameOver) return;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw the road (simple background pattern)
             ctx.fillStyle = '#555';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw lane markings
-            ctx.strokeStyle = '#FFF';
+            // Draw yellow lane markings
+            ctx.strokeStyle = 'yellow';
             ctx.lineWidth = 4;
             ctx.setLineDash([20, 20]);
             ctx.beginPath();
@@ -139,7 +148,6 @@
             obstacles.forEach(drawObstacle);
             updateObstacles();
 
-            // Check for collisions
             for (let obstacle of obstacles) {
                 if (detectCollision(playerCar, obstacle)) {
                     isGameOver = true;
@@ -148,9 +156,15 @@
                 }
             }
 
+            // Display score
             ctx.fillStyle = 'white';
             ctx.font = '20px Arial';
             ctx.fillText('Score: ' + gameScore, 10, 30);
+            
+            // Display speedometer
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText('Speed: ' + gameSpeed * 5 + ' km/hr', canvas.width - 150, 30); // Convert to km/hr
 
             requestAnimationFrame(updateGame);
         }
@@ -173,18 +187,40 @@
             keys[e.key] = false;
         });
 
+        // Countdown logic
+        function startCountdown() {
+            let count = 3;
+            countdownDisplay.style.display = 'block'; // Show countdown
+            countdownDisplay.innerText = count;
+
+            const countdownInterval = setInterval(() => {
+                count--;
+                countdownDisplay.innerText = count;
+
+                if (count <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownDisplay.style.display = 'none'; // Hide countdown
+                    updateGame(); // Start the game after countdown
+                    for (let i = 0; i < 5; i++) {
+                        createObstacle(); // Create initial obstacles
+                    }
+                }
+            }, 1000);
+        }
+
         // Start the game when the button is clicked
         document.getElementById('startButton').addEventListener('click', function() {
             this.style.display = 'none'; // Hide the button
-            updateGame(); // Start the game
-            for (let i = 0; i < 5; i++) {
-                createObstacle(); // Create a few initial obstacles
-            }
+            startCountdown(); // Start the countdown
         });
 
-        // Load bush image
-        bushImage.onload = function() {
-            // The game will start after the button is clicked
+        // Ensure images load before starting
+        let imagesLoaded = 0;
+        carImage.onload = bushImage.onload = function() {
+            imagesLoaded++;
+            if (imagesLoaded === 2) {
+                // Ready to start the game
+            }
         };
     </script>
 </body>
